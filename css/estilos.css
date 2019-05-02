@@ -1,0 +1,81 @@
+@charset "UTF-8";
+
+@font-face{
+font-family:Fuentechida;
+src:url(fonts/OleoScript-Regular.ttf);
+}
+body{
+background-image: url(imagenes/blackj.jpg);
+background-size:cover;
+background-repeat: no-repeat;
+background-attachment:fixed;
+}
+.formulario{
+transition: 2s;
+margin-top: 100px;
+width: 30%;
+box-shadow: 0px 0px 40px rgba(213,0,0 ,1),0px 0px 80px rgba(256,256,256 ,1);
+}
+
+.formulario:hover{
+transition: .8s;
+background-color: rgba(0,0,0,.5);
+}
+
+
+.logo{
+height: 75px;
+margin-top: 40px;
+}
+
+.espaciado{
+margin-top: 40px;
+}
+
+
+h3,h4{
+
+color:white;
+text-align: center;
+font-family: fuentechida;
+}
+
+.Input{
+transition: .8s;
+background-color: rgba(0,0,0,.5);
+color: white;
+border-color:blue;
+border-bottom-color:white;
+border-bottom-style:groove;
+border-left:none;
+border-right:none;
+border-top:none;
+border-width: 4px;
+
+}
+
+.Input:hover{
+transition: .8s;
+background-color:rgba(55,71,79 ,.5);
+box-shadow:inset;
+border-bottom-color:red;
+}
+
+.Input:focus{
+transition: .8s;
+border-bottom-color:red;
+}
+
+
+
+@media screen and (max-width:750px) {
+
+.logo{
+height: 50px;
+
+}
+.formulario{
+transition: 2s;
+width: 95%;
+margin-top: 10px;
+}
