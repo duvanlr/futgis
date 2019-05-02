@@ -1,0 +1,708 @@
+
+<!DOCTYPE html PUBLIC>
+<html>
+
+<head>
+    <!-- Librerias de JQuery js -->
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>FUTGIS</title>
+    <!-- <script src="js/jquery.min.js" type="text/javascript"></script>
+    <link href="bootstrap/bootstrap.min.css" rel="stylesheet" />
+    <link href="bootstrap/bootstrap-theme.css" rel="stylesheet" /> -->
+    <link href="css/estilos.css" rel="stylesheet">
+    <link href="fonts/OleoScript-Regular.ttf" rel="stylesheet" />
+    <link rel="icon" href="imagenes/icon.png">
+    <link rel="stylesheet" href="css/leaflet.css"><link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css"><link rel="stylesheet" href="css/L.Control.Locate.min.css">
+    <link rel="stylesheet" href="css/qgis2web.css">
+    <link rel="stylesheet" href="css/Control.OSMGeocoder.css">
+    <link rel="stylesheet" href="css/leaflet-measure.css">
+    <!-- <link rel="stylesheet" href="librerias/leaflet/leaflet.css" /> -->
+	<!-- <script src="librerias/leaflet/leaflet.js"></script> -->
+
+
+    <!-- importar librerias JAVASCRIPT -->
+	<link href="librerias/bootstrap/css/bootstrap.css" rel="stylesheet">
+
+	<script src="librerias/jquery/jquery-1.12.3.min.js"></script>
+
+	<script src="librerias/bootstrap/js/bootstrap.js"></script>
+	<script src="librerias/bootbox/bootbox.min.js"></script>
+
+    <script src="js/qgis2web_expressions.js"></script>
+        <script src="js/leaflet.js"></script><script src="js/L.Control.Locate.min.js"></script>
+        <script src="js/leaflet.rotatedMarker.js"></script>
+        <script src="js/leaflet.pattern.js"></script>
+        <script src="js/leaflet-hash.js"></script>
+        <script src="js/Autolinker.min.js"></script>
+        <script src="js/rbush.min.js"></script>
+        <script src="js/labelgun.min.js"></script>
+        <script src="js/labels.js"></script>
+        <script src="js/Control.OSMGeocoder.js"></script>
+        <script src="js/leaflet-measure.js"></script>
+        <script src="js/proj4.js"></script>
+        <script src="js/proj4leaflet.js"></script>
+        <script src="js/leaflet.markercluster.js"></script>
+        <script src="js/leaflet-search.js"></script>
+        <script src="data/comunas_0.js"></script>
+        <script src="data/barrio_1.js"></script>
+        <script src="data/manzana_2.js"></script>
+        <script src="data/vias_3.js"></script>
+        <script src="data/canchas_sur_4.js"></script>
+
+	<link rel="stylesheet" href="librerias/leaflet-groupedlayercontrol/leaflet.groupedlayercontrol.min.css" />
+	<script src="librerias/leaflet-groupedlayercontrol/leaflet.groupedlayercontrol.min.js"></script>
+
+	<link rel="stylesheet" href="librerias/leaflet-easybutton/easy-button.css" />
+	<script src="librerias/leaflet-easybutton/easy-button.js"></script>
+
+</head>
+<style>
+    @font-face {
+        font-family: fuente;
+        src: url(fonts/OleoScript-Regular.ttf);
+    }
+
+    body {
+        background-image: url(imagenes/fondo.jpg);
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+    }
+
+    .formulario {
+        transition: 2s;
+        margin-top: 100px;
+        width: 30%;
+        box-shadow: 0px 0px 40px black, 0px 0px 80px rgb(62, 252, 4);
+    }
+
+    .formulario:hover {
+        transition: .8s;
+        background-color: rgba(0, 0, 0, .5);
+    }
+
+
+    .logo {
+        height: 75px;
+        margin-top: 40px;
+    }
+
+    .espaciado {
+        margin-top: 40px;
+    }
+
+    fieldset {
+        transition: 2s;
+        margin-bottom: 50px;
+        border-color: black;
+        border-style: groove;
+        border-width: 5px;
+        border-radius: 20px;
+    }
+
+
+
+    h2,
+    h3,
+    h4 {
+
+        color: white;
+        text-align: center;
+        font-family: fuente;
+    }
+
+    .Input {
+        transition: .8s;
+        background-color: rgba(0, 0, 0, .5);
+        color: white;
+        border-color: #006;
+        border-bottom-color: white;
+        border-bottom-style: groove;
+        border-left: none;
+        border-right: none;
+        border-top: none;
+        border-width: 4px;
+
+    }
+
+    .Input:hover {
+        transition: .8s;
+        background-color: rgba(10, 10, 10, .5);
+        box-shadow: inset;
+        border-bottom-color: white;
+    }
+
+    .Input:focus {
+        transition: .8s;
+        border-bottom-color: black;
+    }
+
+    img {
+        display: block;
+        margin: auto;
+    }
+
+    .btn-primary{
+        background-color: darkgrey !important;
+    }
+
+    @media screen and (max-width:750px) {
+
+        .logo {
+            height: 50px;
+
+        }
+
+        .formulario {
+            transition: 2s;
+            width: 95%;
+            margin-top: 10px;
+        }
+    }
+</style>
+
+
+<body>
+    <div class="container">
+        <div>
+            <img src="imagenes/logo.jpg">
+        </div>
+        <div class="row">
+            <fieldset class="col-xs-10 col-xs-offset-1">
+                <h3>FUTGIS</h3>
+            </fieldset>
+        </div>
+        <div class="row">
+</div>
+        <div class="row">
+                <div id="map" style="width: 100%; height: 100%;">
+                    </div>
+        </div>
+    </div>
+</body>
+<script>
+        var highlightLayer;
+        var flag_reporte=false;
+
+        function highlightFeature(e) {
+            highlightLayer = e.target;
+
+            if (e.target.feature.geometry.type === 'LineString') {
+              highlightLayer.setStyle({
+                color: '#ffff00',
+              });
+            } else {
+              highlightLayer.setStyle({
+                fillColor: '#ffff00',
+                fillOpacity: 1
+              });
+            }
+        }
+        var crs = new L.Proj.CRS('EPSG:3115', '+proj=tmerc +lat_0=4.596200416666666 +lon_0=-77.07750791666666 +k=1 +x_0=1000000 +y_0=1000000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs', {
+            resolutions: [2800, 1400, 700, 350, 175, 84, 42, 21, 11.2, 5.6, 2.8, 1.4, 0.7, 0.35, 0.14, 0.07],
+        });
+        var map = L.map('map', {
+            crs: crs,
+            continuousWorld: false,
+            worldCopyJump: false,
+            zoomControl:true, maxZoom:28, minZoom:1
+        })
+        var hash = new L.Hash(map);
+        map.attributionControl.addAttribution('<a href="https://github.com/tomchadwin/qgis2web" target="_blank">qgis2web</a>');
+        L.control.locate().addTo(map);
+        var measureControl = new L.Control.Measure({
+            primaryLengthUnit: 'meters',
+            secondaryLengthUnit: 'kilometers',
+            primaryAreaUnit: 'sqmeters',
+            secondaryAreaUnit: 'hectares'
+        });
+
+        	//BOTON LLAMA
+	    // L.easyButton('<img src="images/search-icon.png">', function(btn, map)
+	    // {
+	    // 	flag_reporte=true;
+	    // 	document.getElementById('map').style.cursor = 'crosshair';
+	    // }).addTo( map );
+        function onMapClick(e) {
+
+            if(flag_reporte)
+            {
+                lanzarVentanaBusqueda(e);
+                flag_reporte=false;
+            }
+        }
+
+        function lanzarVentanaBusqueda(e) {
+            $('#coord_y').html(e.latlng.lat.toString());
+		    $('#coord_x').html(e.latlng.lng.toString());
+
+            var item_dialog_con = bootbox.dialog({
+			title: "Busqueda de Canchas",
+			message: $('#myVentanaModal').html(),
+			size: "medium",  //small , large , medium
+			onEscape: true,
+			show: false,
+			buttons: {
+
+				registrar:
+				{
+					label: "Buscar Cancha",
+					className: "btn-success",
+					callback: function ()
+					{
+						var precio_recuperado=item_dialog_con.find('#sel_precio').val();
+						var num_canchas_recuperado=item_dialog_con.find('#sel_num_canchas').val();
+						var parqueadero_recuperado=item_dialog_con.find('#sel_parqueadero').val();
+
+						var coordenada_y = e.latlng.lat.toString();
+						var coordenada_x = e.latlng.lng.toString();
+
+                        $.post("genera_ruta.php",
+						{
+							parametros:
+							{  x: coordenada_x  ,
+							   y: coordenada_y ,
+							   precio : precio_recuperado ,
+							   num_canchas : num_canchas_recuperado ,
+							   parqueadero : parqueadero_recuperado ,
+							}
+						},
+						function(data, status){
+							console.log("Datos recibidos: " + data + "\nStatus: " + status);
+							if(status=='success')
+							{
+								if(data=='NUEVA_RUTA_CREADA')
+								{
+									alert('Ruta creada con exito !!');
+									//Aqui incluir funcion para pintar el mapa
+
+
+									$.post("recupera_ruta.php",
+									{
+										peticion: 'recupera_ruta',
+									},
+									function(data, status)
+									{
+										if(status=='success')
+										{
+											pintarRuta(data);
+										}
+									});
+
+
+								}
+							else
+								{
+									alert('Problemas al generar las rutas ');
+								}
+							}
+						});
+
+
+
+
+					}
+				},
+				cancel:
+				{
+					label: "Cerrar",
+					className: "btn-default",
+					callback: function () {
+						item_dialog_con.modal("hide");
+					}
+				}
+
+
+
+			}
+		});
+
+        var miEstiloLinea1 = {
+		"color": "#ff7800",
+		"weight": 5,
+		"opacity": 0.8
+	};
+
+
+    var capaGeojson = L.geoJson();
+	var geojsonFeature;
+
+        function pintarRuta(data)
+	{
+		console.log('--Pinta Ruta');
+		//console.log(data);
+
+		map.removeLayer(capaGeojson);
+
+		geojsonFeature= eval('('+data+')');
+		capaGeojson = L.geoJson(geojsonFeature,  {style: miEstiloLinea1 }).addTo(map);
+		layerControl.addOverlay(capaGeojson,"Usuario - Cancha", "Ruta");
+		map.addLayer(capaGeojson);
+		layerControl._update();
+		capaGeojson.addTo( map );
+	}
+
+		//Muestro el mensaje de dialogo
+		item_dialog_con.modal('show');
+
+        }
+
+        map.on('click', onMapClick);
+        measureControl.addTo(map);
+        var bounds_group = new L.featureGroup([]);
+        function setBounds() {
+            if (bounds_group.getLayers().length) {
+                map.fitBounds(bounds_group.getBounds());
+            }
+            map.setMaxBounds(map.getBounds());
+        }
+        function pop_comunas_0(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    for (i in e.target._eventParents) {
+                        e.target._eventParents[i].resetStyle(e.target);
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['gid'] !== null ? Autolinker.link(String(feature.properties['gid'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['comuna'] !== null ? Autolinker.link(String(feature.properties['comuna'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['nombre'] !== null ? Autolinker.link(String(feature.properties['nombre'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['area'] !== null ? Autolinker.link(String(feature.properties['area'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['perimetro'] !== null ? Autolinker.link(String(feature.properties['perimetro'])) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+        }
+
+        function style_comunas_0_0() {
+            return {
+                pane: 'pane_comunas_0',
+                opacity: 1,
+                color: 'rgba(0,0,0,0.5)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(49,132,204,0.5)',
+            }
+        }
+        map.createPane('pane_comunas_0');
+        map.getPane('pane_comunas_0').style.zIndex = 400;
+        map.getPane('pane_comunas_0').style['mix-blend-mode'] = 'normal';
+        var layer_comunas_0 = new L.geoJson(json_comunas_0, {
+            attribution: '<a href=""></a>',
+            pane: 'pane_comunas_0',
+            // onEachFeature: pop_comunas_0,
+            style: style_comunas_0_0,
+        });
+        bounds_group.addLayer(layer_comunas_0);
+        map.addLayer(layer_comunas_0);
+        function pop_barrio_1(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    for (i in e.target._eventParents) {
+                        e.target._eventParents[i].resetStyle(e.target);
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['gid'] !== null ? Autolinker.link(String(feature.properties['gid'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['id_barrio'] !== null ? Autolinker.link(String(feature.properties['id_barrio'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['barrio'] !== null ? Autolinker.link(String(feature.properties['barrio'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['area'] !== null ? Autolinker.link(String(feature.properties['area'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['perimetro'] !== null ? Autolinker.link(String(feature.properties['perimetro'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['comuna'] !== null ? Autolinker.link(String(feature.properties['comuna'])) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+        }
+
+        function style_barrio_1_0() {
+            return {
+                pane: 'pane_barrio_1',
+                opacity: 1,
+                color: 'rgba(0,0,0,0.6)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(30,218,87,0.6)',
+            }
+        }
+        map.createPane('pane_barrio_1');
+        map.getPane('pane_barrio_1').style.zIndex = 401;
+        map.getPane('pane_barrio_1').style['mix-blend-mode'] = 'normal';
+        var layer_barrio_1 = new L.geoJson(json_barrio_1, {
+            attribution: '<a href=""></a>',
+            pane: 'pane_barrio_1',
+            // onEachFeature: pop_barrio_1,
+            style: style_barrio_1_0,
+        });
+        bounds_group.addLayer(layer_barrio_1);
+        map.addLayer(layer_barrio_1);
+        function pop_manzana_2(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    for (i in e.target._eventParents) {
+                        e.target._eventParents[i].resetStyle(e.target);
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['gid'] !== null ? Autolinker.link(String(feature.properties['gid'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['shape_area'] !== null ? Autolinker.link(String(feature.properties['shape_area'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['id_barrio'] !== null ? Autolinker.link(String(feature.properties['id_barrio'])) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+        }
+
+        function style_manzana_2_0() {
+            return {
+                pane: 'pane_manzana_2',
+                opacity: 1,
+                color: 'rgba(0,0,0,0.5)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(176,230,60,0.5)',
+            }
+        }
+        map.createPane('pane_manzana_2');
+        map.getPane('pane_manzana_2').style.zIndex = 402;
+        map.getPane('pane_manzana_2').style['mix-blend-mode'] = 'normal';
+        var layer_manzana_2 = new L.geoJson(json_manzana_2, {
+            attribution: '<a href=""></a>',
+            pane: 'pane_manzana_2',
+            // onEachFeature: pop_manzana_2,
+            style: style_manzana_2_0,
+        });
+        bounds_group.addLayer(layer_manzana_2);
+        map.addLayer(layer_manzana_2);
+        function pop_vias_3(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    for (i in e.target._eventParents) {
+                        e.target._eventParents[i].resetStyle(e.target);
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['gid'] !== null ? Autolinker.link(String(feature.properties['gid'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['tipo_via'] !== null ? Autolinker.link(String(feature.properties['tipo_via'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['estado_act'] !== null ? Autolinker.link(String(feature.properties['estado_act'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['nombre'] !== null ? Autolinker.link(String(feature.properties['nombre'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['x1'] !== null ? Autolinker.link(String(feature.properties['x1'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['y1'] !== null ? Autolinker.link(String(feature.properties['y1'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['x2'] !== null ? Autolinker.link(String(feature.properties['x2'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['y2'] !== null ? Autolinker.link(String(feature.properties['y2'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['source'] !== null ? Autolinker.link(String(feature.properties['source'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['target'] !== null ? Autolinker.link(String(feature.properties['target'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['costo'] !== null ? Autolinker.link(String(feature.properties['costo'])) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+        }
+
+        function style_vias_3_0() {
+            return {
+                pane: 'pane_vias_3',
+                opacity: 1,
+                color: 'rgba(14,5,13,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 1.0,
+                fillOpacity: 0,
+            }
+        }
+        map.createPane('pane_vias_3');
+        map.getPane('pane_vias_3').style.zIndex = 403;
+        map.getPane('pane_vias_3').style['mix-blend-mode'] = 'normal';
+        var layer_vias_3 = new L.geoJson(json_vias_3, {
+            attribution: '<a href=""></a>',
+            pane: 'pane_vias_3',
+            // onEachFeature: pop_vias_3,
+            style: style_vias_3_0,
+        });
+        bounds_group.addLayer(layer_vias_3);
+        map.addLayer(layer_vias_3);
+        function pop_canchas_sur_4(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    for (i in e.target._eventParents) {
+                        e.target._eventParents[i].resetStyle(e.target);
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['gid'] !== null ? Autolinker.link(String(feature.properties['gid'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['nombre'] !== null ? Autolinker.link(String(feature.properties['nombre'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['direccion'] !== null ? Autolinker.link(String(feature.properties['direccion'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['comuna'] !== null ? Autolinker.link(String(feature.properties['comuna'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['telefono1'] !== null ? Autolinker.link(String(feature.properties['telefono1'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['telefono2'] !== null ? Autolinker.link(String(feature.properties['telefono2'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['precio'] !== null ? Autolinker.link(String(feature.properties['precio'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['parqueadero'] !== null ? Autolinker.link(String(feature.properties['parqueadero'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['num_canchas'] !== null ? Autolinker.link(String(feature.properties['num_canchas'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['tienda'] !== null ? Autolinker.link(String(feature.properties['tienda'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['link'] !== null ? Autolinker.link(String(feature.properties['link'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2"> <img src="' + (feature.properties['imagen'] !== null ? Autolinker.link(String(feature.properties['imagen'])) : '') + '"></td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+        }
+
+        function style_canchas_sur_4_0() {
+            return {
+                pane: 'pane_canchas_sur_4',
+        rotationAngle: 0.0,
+        rotationOrigin: 'center center',
+        icon: L.icon({
+            iconUrl: 'markers/sport_soccer.svg',
+            iconSize: [15.96, 15.96]
+        }),
+            }
+        }
+        map.createPane('pane_canchas_sur_4');
+        map.getPane('pane_canchas_sur_4').style.zIndex = 404;
+        map.getPane('pane_canchas_sur_4').style['mix-blend-mode'] = 'normal';
+        var layer_canchas_sur_4 = new L.geoJson(json_canchas_sur_4, {
+            attribution: '<a href=""></a>',
+            pane: 'pane_canchas_sur_4',
+            onEachFeature: pop_canchas_sur_4,
+            pointToLayer: function (feature, latlng) {
+                var context = {
+                    feature: feature,
+                    variables: {}
+                };
+                return L.marker(latlng, style_canchas_sur_4_0(feature));
+            },
+        });
+        var cluster_canchas_sur_4 = new L.MarkerClusterGroup({showCoverageOnHover: false,
+            spiderfyDistanceMultiplier: 2});
+        cluster_canchas_sur_4.addLayer(layer_canchas_sur_4);
+
+        bounds_group.addLayer(layer_canchas_sur_4);
+        cluster_canchas_sur_4.addTo(map);
+        var osmGeocoder = new L.Control.OSMGeocoder({
+            collapsed: false,
+            position: 'topright',
+            text: 'Buscar',
+        });
+        osmGeocoder.addTo(map);
+        var baseMaps = {};
+        L.control.layers(baseMaps,{'<img src="legend/canchas_sur_4.png" /> canchas_sur': cluster_canchas_sur_4,'<img src="legend/vias_3.png" /> vias': layer_vias_3,'<img src="legend/manzana_2.png" /> manzana': layer_manzana_2,'<img src="legend/barrio_1.png" /> barrio': layer_barrio_1,'<img src="legend/comunas_0.png" /> comunas': layer_comunas_0,}).addTo(map);
+        setBounds();
+        var i = 0;
+        layer_canchas_sur_4.eachLayer(function(layer) {
+            var context = {
+                feature: layer.feature,
+                variables: {}
+            };
+            layer.bindTooltip((layer.feature.properties['nombre'] !== null?String('<div style="color: #000000; font-size: 5pt; font-family: \'MS Shell Dlg 2\', sans-serif;">' + layer.feature.properties['nombre']) + '</div>':''), {permanent: true, offset: [-0, -16], className: 'css_canchas_sur_4'});
+            labels.push(layer);
+            totalMarkers += 1;
+              layer.added = true;
+              addLabel(layer, i);
+              i++;
+        });
+        map.addControl(new L.Control.Search({
+            layer: cluster_canchas_sur_4,
+            initial: false,
+            hideMarkerOnCollapse: true,
+            propertyName: 'nombre'}));
+        resetLabels([layer_canchas_sur_4]);
+        map.on("zoomend", function(){
+            resetLabels([layer_canchas_sur_4]);
+        });
+        map.on("layeradd", function(){
+            resetLabels([layer_canchas_sur_4]);
+        });
+        map.on("layerremove", function(){
+            resetLabels([layer_canchas_sur_4]);
+        });
+        </script>
+</html>
